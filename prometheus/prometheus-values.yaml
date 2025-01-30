@@ -1,11 +1,9 @@
-# prometheus-values.yaml
 prometheus:
   prometheusSpec:
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
 
-    # Add blackbox scrape config
     additionalScrapeConfigs:
       - job_name: 'blackbox'
         metrics_path: /probe
@@ -13,14 +11,15 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - http://127.0.0.1:9115  # Replace with your service URL
+            - https://www.google.com  # Target URL to probe
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
           - source_labels: [__param_target]
             target_label: instance
           - target_label: __address__
-            replacement: blackbox-exporter:9115
+            # Using the exact service name from kubectl describe output
+            replacement: blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc:9115
 
     # Configure alert rules
     additionalPrometheusRulesMap:
