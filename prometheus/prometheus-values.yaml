@@ -11,7 +11,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - https://www.google.com  # Target URL to probe
+            - https://www.google.uk  # Target URL to probe
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
