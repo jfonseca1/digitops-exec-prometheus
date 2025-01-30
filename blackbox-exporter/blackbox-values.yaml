@@ -6,3 +6,4 @@ config:
       http:
         valid_status_codes: [200]
         method: GET
+        target: "127.0.0.1:8000"  
