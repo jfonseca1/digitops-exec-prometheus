@@ -1,0 +1,36 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    additionalScrapeConfigs:
+      - job_name: 'blackbox'
+        metrics_path: /probe
+        params:
+          module: [http_2xx]
+        static_configs:
+          - targets:
+            - http://your-service-url  # Replace with your service URL
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox-exporter:9115
+
+    ruleSelector: {}
+    ruleNamespaceSelector: {}
+    additionalRulesConfig:
+      prometheus-alert-rules:
+        groups:
+          - name: service-alerts
+            rules:
+              - alert: ServiceDown
+                expr: probe_success{job="blackbox"} == 0 or probe_duration_seconds{job="blackbox"} > 300
+                for: 5m
+                labels:
+                  severity: critical
+                annotations:
+                  summary: "Service is down or not responding with 200"
+                  description: "Service {{ $labels.instance }} has been down or not responding properly for more than 5 minutes"
