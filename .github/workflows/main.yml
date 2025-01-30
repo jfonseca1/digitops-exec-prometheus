@@ -1,0 +1,29 @@
+# .github/workflows/deploy.yml
+name: Deploy Monitoring Stack
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Add Helm repos
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+      - name: Deploy Blackbox Exporter
+        run: |
+          helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter \
+            --namespace monitoring \
+            -f blackbox-values.yaml \
+            --wait
