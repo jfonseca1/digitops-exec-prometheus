@@ -10,7 +10,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - http://your-service-url  # Replace with your service URL
+            - http://127.0.0.1:8000  # Replace with your service URL
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
