@@ -1,8 +1,11 @@
+# prometheus-values.yaml
 prometheus:
   prometheusSpec:
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
+
+    # Add blackbox scrape config
     additionalScrapeConfigs:
       - job_name: 'blackbox'
         metrics_path: /probe
@@ -10,7 +13,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - https://www.google.com  # Replace with your service URL
+            - http://www.google.com  # Replace with your service URL
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
@@ -19,18 +22,21 @@ prometheus:
           - target_label: __address__
             replacement: blackbox-exporter:9115
 
-    ruleSelector: {}
-    ruleNamespaceSelector: {}
-    additionalRulesConfig:
-      prometheus-alert-rules:
+    # Configure alert rules
+    additionalPrometheusRulesMap:
+      service-monitoring-rules:
         groups:
-          - name: service-alerts
+          - name: service.rules
             rules:
-              - alert: ServiceDown
-                expr: probe_success{job="blackbox"} == 0 or probe_duration_seconds{job="blackbox"} > 300
+              - alert: ServiceNot200Response
+                expr: |
+                  probe_http_status_code{job="blackbox"} != 200
+                  or absent(probe_http_status_code{job="blackbox"})
                 for: 5m
                 labels:
                   severity: critical
+                  team: sre
                 annotations:
-                  summary: "Service is down or not responding with 200"
-                  description: "Service {{ $labels.instance }} has been down or not responding properly for more than 5 minutes"
+                  summary: "Service not responding with HTTP 200"
+                  description: "{{ $labels.instance }} has not responded with HTTP 200 for more than 5 minutes"
+                  runbook_url: "https://wiki.example.com/runbook/service-outage"
