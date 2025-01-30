@@ -23,12 +23,12 @@ jobs:
           helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter \
             --namespace monitoring \
             -f ./blackbox-exporter/blackbox-values.yaml \
-            --wait
+            --wait --create-namespace
       - name: Deploy Prometheus
         run: |
           helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
             --namespace monitoring \
             -f ./prometheus/prometheus-values.yaml \
-            --wait --create-namespace
+            --wait 
 
       
