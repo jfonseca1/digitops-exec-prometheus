@@ -10,10 +10,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      - name: Deploy to Kubernetes
-        run: |
-          # Delete existing pods to force update
-          kubectl delete namespace monitoring
+      
       - name: Add Prometheus helm repo
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
