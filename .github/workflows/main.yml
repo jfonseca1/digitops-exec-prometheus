@@ -26,4 +26,4 @@ jobs:
           helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter \
             --namespace monitoring \
             -f blackbox-values.yaml \
-            --wait
+            --wait --create-namespace
