@@ -18,7 +18,12 @@ jobs:
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
-
+      - name: Deploy Blackbox Exporter
+        run: |
+          helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter \
+            --namespace monitoring \
+            -f ./blackbox-exporter/blackbox-values.yaml \
+            --wait
       - name: Deploy Prometheus
         run: |
           helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
@@ -26,9 +31,4 @@ jobs:
             -f ./prometheus/prometheus-values.yaml \
             --wait --create-namespace
 
-      - name: Deploy Blackbox Exporter
-        run: |
-          helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter \
-            --namespace monitoring \
-            -f ./blackbox-exporter/blackbox-values.yaml \
-            --wait
+      
