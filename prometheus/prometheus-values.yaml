@@ -11,7 +11,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - https://www.google.uk  # Target URL to probe
+            - https://site.com/contact.html  # Target URL to probe
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
@@ -21,21 +21,17 @@ prometheus:
             # Using the exact service name from kubectl describe output
             replacement: blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc:9115
 
-    # Configure alert rules
-    additionalPrometheusRulesMap:
-      service-monitoring-rules:
+    additionalPrometheusRules:
+      - name: blackbox-alert
         groups:
-          - name: service.rules
+          - name: blackbox-alerts
             rules:
-              - alert: ServiceNot200Response
-                expr: |
-                  probe_http_status_code{job="blackbox"} != 200
-                  or absent(probe_http_status_code{job="blackbox"})
+              - alert: ServiceDown
+                expr: probe_http_status_code != 200
                 for: 5m
                 labels:
                   severity: critical
-                  team: sre
                 annotations:
-                  summary: "Service not responding with HTTP 200"
-                  description: "{{ $labels.instance }} has not responded with HTTP 200 for more than 5 minutes"
-                  runbook_url: "https://wiki.example.com/runbook/service-outage"
+                  summary: "Service is down"
+                  description: "The service has not responded with HTTP 200 for more than 5 minutes."
+
