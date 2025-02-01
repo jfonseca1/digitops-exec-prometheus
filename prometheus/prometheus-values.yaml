@@ -24,23 +24,19 @@ prometheus:
         static_configs:
           - targets: ['blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc:9115']          
 
-customRules:
-  ServiceHTTPResponseNotOK:
-    severity: "warning"
-
 additionalPrometheusRulesMap:
-  service-alert-rules:
+  service-monitoring-rules:
     groups:
       - name: service.rules
         rules:
           - alert: ServiceNotResponding
-            expr: probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"} != 200 or absent(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"})
+            expr: |
+              (probe_success{instance="digitops-service-service.digitops.svc.cluster.local"} == 0) or
+              (probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"} > 0 
+               and probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"} != 200)
             for: 5m
             labels:
               severity: critical
             annotations:
               summary: "Service is not responding with 200 HTTP code"
-              description: "digitops-service has not responded with HTTP 200 for more than 5 minutes"
-
-
-
+              description: "digitops-service has not responded with HTTP 200 for more than 5 minutes"            
