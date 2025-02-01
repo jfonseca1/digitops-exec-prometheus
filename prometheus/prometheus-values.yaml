@@ -31,7 +31,7 @@ additionalPrometheusRulesMap:
       - name: service.rules
         rules:
           - alert: ServiceNotResponding
-            expr: probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"} != 200 or absent(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"})
+            expr: probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"} != 200 or absent(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"})
             for: 5m
             labels:
               severity: critical
