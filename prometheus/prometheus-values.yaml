@@ -11,7 +11,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - http://digitops-service-service.digitops.svc.cluster.local # Target URL to probe
+            - http://digitops-service-service.digitops.svc.cluster.local:80 # Target URL to probe
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
@@ -19,7 +19,10 @@ prometheus:
             target_label: instance
           - target_label: __address__
             # Using the exact service name from kubectl describe output
-            replacement: blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc:9115
+            replacement: 127.0.0.1:9115
+      - job_name: 'blackbox_exporter'  # collect blackbox exporter's operational metrics.
+        static_configs:
+          - targets: ['127.0.0.1:9115']          
 
 customRules:
   ServiceHTTPResponseNotOK:
@@ -31,7 +34,7 @@ additionalPrometheusRulesMap:
       - name: service.rules
         rules:
           - alert: ServiceNotResponding
-            expr: probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"} != 200 or absent(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"})
+            expr: probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"} != 200 or absent(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"})
             for: 5m
             labels:
               severity: critical
