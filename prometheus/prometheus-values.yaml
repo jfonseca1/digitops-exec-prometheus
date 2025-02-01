@@ -19,10 +19,10 @@ prometheus:
             target_label: instance
           - target_label: __address__
             # Using the exact service name from kubectl describe output
-            replacement: 127.0.0.1:9115
+            replacement: blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc:9115
       - job_name: 'blackbox_exporter'  # collect blackbox exporter's operational metrics.
         static_configs:
-          - targets: ['127.0.0.1:9115']          
+          - targets: ['blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc:9115']          
 
 customRules:
   ServiceHTTPResponseNotOK:
