@@ -26,37 +26,18 @@ customRules:
     severity: "warning"
 
 additionalPrometheusRulesMap:
-  http-response-rules:
+  service-alert-rules:
     groups:
-      - name: http-service-monitoring
+      - name: service.rules
         rules:
-        - alert: ServiceHTTPResponseNotOK
-          annotations:
-            description: "HTTP service {{ $labels.instance }} has been responding with non-200 status codes for more than 5 minutes"
-            runbook_url: "https://your-runbook-url.com/runbooks/service/servicehttpresponsenotok"
-            summary: "Service is not responding with HTTP 200 status code"
-          expr: |
-            rate(http_requests_total{status!="200"}[5m]) > 0
-            and
-            rate(http_requests_total{status="200"}[5m]) == 0
-          for: 5m
-          labels:
-            severity: warning
-            service: "{{ $labels.service }}"
-            instance: "{{ $labels.instance }}"
+          - alert: ServiceNotResponding
+            expr: probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"} != 200 or absent(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local:80"})
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Service is not responding with 200 HTTP code"
+              description: "digitops-service has not responded with HTTP 200 for more than 5 minutes"
 
-        # Additional alert for high error rate
-        - alert: ServiceHighErrorRate
-          annotations:
-            description: "HTTP service {{ $labels.instance }} has more than 10% error rate over the last 5 minutes"
-            runbook_url: "https://your-runbook-url.com/runbooks/service/servicehigherrorrate"
-            summary: "Service has high HTTP error rate"
-          expr: |
-            sum(rate(http_requests_total{status!="200"}[5m])) by (instance)
-            /
-            sum(rate(http_requests_total[5m])) by (instance) > 0.1
-          for: 5m
-          labels:
-            severity: warning
-            service: "{{ $labels.service }}"
-            instance: "{{ $labels.instance }}"              
+
+
