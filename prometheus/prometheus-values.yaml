@@ -11,7 +11,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - digitops-service-service.digitops.svc:8000 # Target URL to probe
+            - http://digitops-service-service.digitops.svc.cluster.local # Target URL to probe
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
