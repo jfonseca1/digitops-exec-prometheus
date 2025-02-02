@@ -31,7 +31,7 @@ additionalPrometheusRulesMap:
         rules:
           - alert: ServiceNotResponding
             expr: |
-              rate(probe_http_status_code{job="blackbox"}[5m]) == 0 and rate(probe_success{job="blackbox"}[5m]) == 0
+              probe_http_status_code != 200 or probe_success != 1
             for: 5m
             labels:
               severity: critical
