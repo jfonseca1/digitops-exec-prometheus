@@ -31,9 +31,7 @@ additionalPrometheusRulesMap:
         rules:
           - alert: ServiceNotResponding
             expr: |
-              rate(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local", code="200"}[5m]) == 0
-              and
-              rate(probe_http_status_code{instance="digitops-service-service.digitops.svc.cluster.local"}[5m]) > 0
+              rate(probe_http_status_code{job="blackbox"}[5m]) == 0
             for: 5m
             labels:
               severity: critical
